@@ -1,10 +1,31 @@
 [
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
+    "objectID": "f1-qualifying-tutorial.html",
+    "href": "f1-qualifying-tutorial.html",
+    "title": "Does Qualifying Position Predict F1 Race Results? 🏎️",
     "section": "",
-    "text": "Hi I am Trieste"
+    "text": "In Formula 1, race day gets all the glory, but Sunday’s results are heavily shaped on Saturday afternoon during qualifying. Securing a spot at the front of the starting grid grants clear air, lower tire degradation, and a massive strategic advantage. But how strong is that relationship in reality? Does starting on pole position practically guarantee a victory, or do race-day chaos, safety cars, and brilliant recovery drives disrupt the grid order?\nIn this tutorial, we will use pandas to load, clean, and visualize historical Formula 1 data to explore whether a driver’s qualifying position predicts their final race finish. By the end of this post, you will be able to handle real-world tabular data, compute performance shifts, and build an informative scatter plot using Python."
+  },
+  {
+    "objectID": "f1-qualifying-tutorial.html#introduction",
+    "href": "f1-qualifying-tutorial.html#introduction",
+    "title": "Does Qualifying Position Predict F1 Race Results? 🏎️",
+    "section": "",
+    "text": "In Formula 1, race day gets all the glory, but Sunday’s results are heavily shaped on Saturday afternoon during qualifying. Securing a spot at the front of the starting grid grants clear air, lower tire degradation, and a massive strategic advantage. But how strong is that relationship in reality? Does starting on pole position practically guarantee a victory, or do race-day chaos, safety cars, and brilliant recovery drives disrupt the grid order?\nIn this tutorial, we will use pandas to load, clean, and visualize historical Formula 1 data to explore whether a driver’s qualifying position predicts their final race finish. By the end of this post, you will be able to handle real-world tabular data, compute performance shifts, and build an informative scatter plot using Python."
+  },
+  {
+    "objectID": "f1-qualifying-tutorial.html#the-dataset",
+    "href": "f1-qualifying-tutorial.html#the-dataset",
+    "title": "Does Qualifying Position Predict F1 Race Results? 🏎️",
+    "section": "The Dataset",
+    "text": "The Dataset\nTo answer our question, we will utilize the comprehensive Formula 1 World Championship (1950 - 2024) Dataset. This dataset contains rich relational tables covering race results, qualifying sessions, lap times, and driver details. Specifically, we are interested in comparing the grid column (starting position) against the positionOrder column (final race finish).\nTo visualize how individual drivers move through the field, consider the following F1-style leaderboard structure:\n\n\n\n\n\n\n\n\n\n\nDriver\nConstructor\nGrid (Qualifying) Position\nFinish Position\nPositions Gained/Lost\n\n\n\n\nMax Verstappen\nRed Bull\n1\n1\n0\n\n\nLewis Hamilton\nMercedes\n3\n2\n+1\n\n\nCharles Leclerc\nFerrari\n2\n4\n-2"
+  },
+  {
+    "objectID": "f1-qualifying-tutorial.html#loading-and-cleaning-data-with-pandas",
+    "href": "f1-qualifying-tutorial.html#loading-and-cleaning-data-with-pandas",
+    "title": "Does Qualifying Position Predict F1 Race Results? 🏎️",
+    "section": "Loading and Cleaning Data with Pandas",
+    "text": "Loading and Cleaning Data with Pandas\nFirst, let’s load our data using pandas and inspect the core structure of our dataframes.\n\nimport pandas as pd\n\n# Load the qualifying and race results datasets\nresults_df = pd.read_csv(\"data/results.csv\")\nqualifying_df = pd.read_csv(\"data/qualifying.csv\")\n\n# Preview the columns to understand how they align\nprint(results_df.head())\nprint(qualifying_df.head())\n\nWhen analyzing the relationship between starting grid position and final race position, it helps to frame the expectation mathematically. We can model the expected finishing position using a simple linear relationship:\n\\[Y_i = \\beta_0 + \\beta_1 X_i + \\epsilon_i\\]\nWhere \\(X_i\\) represents the starting grid position of driver \\(i\\), \\(Y_i\\) represents their final race finish position, \\(\\beta_0\\) is the baseline intercept, \\(\\beta_1\\) measures the predictive strength of qualifying, and \\(\\epsilon_i\\) accounts for race-day variance and unmeasured factors."
   },
   {
     "objectID": "index.html",
@@ -12,5 +33,26 @@
     "title": "triestecerny.github.io",
     "section": "",
     "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "Hi I am Trieste"
+  },
+  {
+    "objectID": "f1-qualifying-tutorial.html#visualizing-the-relationship",
+    "href": "f1-qualifying-tutorial.html#visualizing-the-relationship",
+    "title": "Does Qualifying Position Predict F1 Race Results? 🏎️",
+    "section": "Visualizing the Relationship",
+    "text": "Visualizing the Relationship\nTo truly understand how predictive qualifying is across hundreds of historical races, visualization is essential. Let’s write a snippet using matplotlib and seaborn to plot grid positions against final race finishes.\n\nimport matplotlib.pyplot as plt\nimport seaborn as sns\nimport pandas as pd\n\n# Load data and filter for 2024\nraces_df = pd.read_csv(\"data/races.csv\")\ndrivers_df = pd.read_csv(\"data/drivers.csv\")\n\ndf_merged = results_df.merge(races_df[['raceId', 'year']], on='raceId') \\\n                      .merge(drivers_df[['driverId', 'surname']], on='driverId')\n\ndf_2024 = df_merged[df_merged['year'] == 2024].dropna(subset=['grid', 'positionOrder'])\ndf_2024 = df_2024[(df_2024['grid'] &gt; 0) & (df_2024['positionOrder'] &lt;= 20)]\n\n# Calculate positions gained/lost (Grid minus Finish: positive means gained positions)\ndf_2024['gained'] = df_2024['grid'] - df_2024['positionOrder']\n\nplt.figure(figsize=(10, 6))\n\n# Plot lines colored by performance change (gained/lost)\nfor _, row in df_2024.iterrows():\n    # Highlight major movers (gained 3+ positions in green, lost 3+ in orange, rest neutral gray)\n    if row['gained'] &gt;= 3:\n        color, alpha, zorder = '#2ecc71', 0.6, 3 # Green for strong climbers\n    elif row['gained'] &lt;= -3:\n        color, alpha, zorder = '#e74c3c', 0.4, 2 # Red/Orange for droppers\n    else:\n        color, alpha, zorder = '#bdc3c7', 0.15, 1 # Neutral gray for steady results\n        \n    plt.plot([1, 2], [row['grid'], row['positionOrder']], color=color, alpha=alpha, zorder=zorder, linewidth=1.5)\n\nplt.title(\"2024 F1 Race Day Shifts: Who Climbed the Grid?\", fontsize=14, fontweight='bold')\nplt.xticks([1, 2], ['Qualifying Grid', 'Race Finish'], fontsize=12)\nplt.ylabel(\"Position\", fontsize=12)\nplt.yticks(range(1, 21))\nplt.gca().invert_yaxis() # 1st place at the top\nplt.grid(True, axis='y', linestyle='--', alpha=0.3)\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\nBy examining the 2024 season scatter plot, you will notice a dense clustering along the diagonal line, indicating that qualifying position is indeed a strong predictor. However, you will also spot significant spread where drivers drop back due to mechanical failures or surge forward through stellar overtaking performances."
+  },
+  {
+    "objectID": "f1-qualifying-tutorial.html#conclusion-and-next-steps",
+    "href": "f1-qualifying-tutorial.html#conclusion-and-next-steps",
+    "title": "Does Qualifying Position Predict F1 Race Results? 🏎️",
+    "section": "Conclusion and Next Steps",
+    "text": "Conclusion and Next Steps\nOur exploratory analysis confirms that while qualifying is a vital indicator of race success, Formula 1 remains wonderfully unpredictable on Sundays. Fast qualifiers have a massive statistical advantage, but strategy, tire management, and weather always play a deciding role.\nCall to Action: Try tweaking the script to filter for a different season (like 2023 or 2022) to see how the grid-to-finish relationship changes across different regulatory eras!"
   }
 ]

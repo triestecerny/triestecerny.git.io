@@ -1,0 +1,105 @@
+---
+title: "Does Qualifying Position Predict F1 Race Results? 🏎️"
+author: "Trieste Cerny"
+date: "2026-10-16"
+format: 
+  html:
+    code-fold: false
+    toc: true
+---
+
+## Introduction
+
+In Formula 1, race day gets all the glory, but Sunday's results are heavily shaped on Saturday afternoon during qualifying. Securing a spot at the front of the starting grid grants clear air, lower tire degradation, and a massive strategic advantage. But how strong is that relationship in reality? Does starting on pole position practically guarantee a victory, or do race-day chaos, safety cars, and brilliant recovery drives disrupt the grid order?
+
+In this tutorial, we will use **pandas** to load, clean, and visualize historical Formula 1 data to explore whether a driver's qualifying position predicts their final race finish. By the end of this post, you will be able to handle real-world tabular data, compute performance shifts, and build an informative scatter plot using Python.
+
+## The Dataset
+
+To answer our question, we will utilize the comprehensive [Formula 1 World Championship (1950 - 2024) Dataset](https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020). This dataset contains rich relational tables covering race results, qualifying sessions, lap times, and driver details. Specifically, we are interested in comparing the `grid` column (starting position) against the `positionOrder` column (final race finish).
+
+To visualize how individual drivers move through the field, consider the following F1-style leaderboard structure:
+
+| Driver | Constructor | Grid (Qualifying) Position | Finish Position | Positions Gained/Lost |
+| :--- | :--- | :--- | :--- | :--- |
+| Max Verstappen | Red Bull | 1 | 1 | 0 |
+| Lewis Hamilton | Mercedes | 3 | 2 | +1 |
+| Charles Leclerc | Ferrari | 2 | 4 | -2 |
+
+## Loading and Cleaning Data with Pandas
+
+First, let's load our data using `pandas` and inspect the core structure of our dataframes. 
+
+```{python}
+#| output: false
+import pandas as pd
+
+# Load the qualifying and race results datasets
+results_df = pd.read_csv("data/results.csv")
+qualifying_df = pd.read_csv("data/qualifying.csv")
+
+# Preview the columns to understand how they align
+print(results_df.head())
+print(qualifying_df.head())
+```
+
+When analyzing the relationship between starting grid position and final race position, it helps to frame the expectation mathematically. We can model the expected finishing position using a simple linear relationship:
+
+$$Y_i = \beta_0 + \beta_1 X_i + \epsilon_i$$
+
+Where $X_i$ represents the starting grid position of driver $i$, $Y_i$ represents their final race finish position, $\beta_0$ is the baseline intercept, $\beta_1$ measures the predictive strength of qualifying, and $\epsilon_i$ accounts for race-day variance and unmeasured factors.
+
+## Visualizing the Relationship
+
+To truly understand how predictive qualifying is across hundreds of historical races, visualization is essential. Let's write a snippet using `matplotlib` and `seaborn` to plot grid positions against final race finishes.
+
+```{python}
+#| warning: false
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+
+# Load data and filter for 2024
+races_df = pd.read_csv("data/races.csv")
+drivers_df = pd.read_csv("data/drivers.csv")
+
+df_merged = results_df.merge(races_df[['raceId', 'year']], on='raceId') \
+                      .merge(drivers_df[['driverId', 'surname']], on='driverId')
+
+df_2024 = df_merged[df_merged['year'] == 2024].dropna(subset=['grid', 'positionOrder'])
+df_2024 = df_2024[(df_2024['grid'] > 0) & (df_2024['positionOrder'] <= 20)]
+
+# Calculate positions gained/lost (Grid minus Finish: positive means gained positions)
+df_2024['gained'] = df_2024['grid'] - df_2024['positionOrder']
+
+plt.figure(figsize=(10, 6))
+
+# Plot lines colored by performance change (gained/lost)
+for _, row in df_2024.iterrows():
+    # Highlight major movers (gained 3+ positions in green, lost 3+ in orange, rest neutral gray)
+    if row['gained'] >= 3:
+        color, alpha, zorder = '#2ecc71', 0.6, 3 # Green for strong climbers
+    elif row['gained'] <= -3:
+        color, alpha, zorder = '#e74c3c', 0.4, 2 # Red/Orange for droppers
+    else:
+        color, alpha, zorder = '#bdc3c7', 0.15, 1 # Neutral gray for steady results
+        
+    plt.plot([1, 2], [row['grid'], row['positionOrder']], color=color, alpha=alpha, zorder=zorder, linewidth=1.5)
+
+plt.title("2024 F1 Race Day Shifts: Who Climbed the Grid?", fontsize=14, fontweight='bold')
+plt.xticks([1, 2], ['Qualifying Grid', 'Race Finish'], fontsize=12)
+plt.ylabel("Position", fontsize=12)
+plt.yticks(range(1, 21))
+plt.gca().invert_yaxis() # 1st place at the top
+plt.grid(True, axis='y', linestyle='--', alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
+By examining the 2024 season slope graph above, you can instantly trace how race day disrupts Saturday's qualifying order. Each line represents a driver's journey from their starting grid position on the left axis to their final race finish on the right axis. The bright green lines highlight major climbers who carved their way forward through the field, the red lines show drivers who lost positions due to incidents or race-day struggles, and the faint gray paths represent stable finishes where the grid order held steady. While pole sitters still enjoy a strong statistical advantage at the front, the web of intersecting lines vividly captures the unpredictable chaos that unfolds every Sunday.
+
+## Conclusion and Next Steps
+
+Our exploratory analysis confirms that while qualifying is a vital indicator of race success, Formula 1 remains wonderfully unpredictable on Sundays. Fast qualifiers have a massive statistical advantage, but strategy, tire management, and weather always play a deciding role.
+
+**Call to Action:** Try tweaking the script to filter for a different season (like 2023 or 2022) to see how the grid-to-finish relationship changes across different regulatory eras!

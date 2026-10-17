@@ -8,7 +8,10 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
+      - href: about.qmd
+        text: About
+      - href: f1-qualifying-tutorial.qmd
+        text: F1 Tutorial
 
 format:
   html:
