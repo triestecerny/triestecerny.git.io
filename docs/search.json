@@ -28,25 +28,11 @@
     "text": "Loading and Cleaning Data with Pandas\nFirst, let’s load our data using pandas and inspect the core structure of our dataframes.\n\nimport pandas as pd\n\n# Load the qualifying and race results datasets\nresults_df = pd.read_csv(\"data/results.csv\")\nqualifying_df = pd.read_csv(\"data/qualifying.csv\")\n\n# Preview the columns to understand how they align\nprint(results_df.head())\nprint(qualifying_df.head())\n\nWhen analyzing the relationship between starting grid position and final race position, it helps to frame the expectation mathematically. We can model the expected finishing position using a simple linear relationship:\n\\[Y_i = \\beta_0 + \\beta_1 X_i + \\epsilon_i\\]\nWhere \\(X_i\\) represents the starting grid position of driver \\(i\\), \\(Y_i\\) represents their final race finish position, \\(\\beta_0\\) is the baseline intercept, \\(\\beta_1\\) measures the predictive strength of qualifying, and \\(\\epsilon_i\\) accounts for race-day variance and unmeasured factors."
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "triestecerny.github.io",
-    "section": "",
-    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "Hi I am Trieste"
-  },
-  {
     "objectID": "f1-qualifying-tutorial.html#visualizing-the-relationship",
     "href": "f1-qualifying-tutorial.html#visualizing-the-relationship",
     "title": "Does Qualifying Position Predict F1 Race Results? 🏎️",
     "section": "Visualizing the Relationship",
-    "text": "Visualizing the Relationship\nTo truly understand how predictive qualifying is across hundreds of historical races, visualization is essential. Let’s write a snippet using matplotlib and seaborn to plot grid positions against final race finishes.\n\nimport matplotlib.pyplot as plt\nimport seaborn as sns\nimport pandas as pd\n\n# Load data and filter for 2024\nraces_df = pd.read_csv(\"data/races.csv\")\ndrivers_df = pd.read_csv(\"data/drivers.csv\")\n\ndf_merged = results_df.merge(races_df[['raceId', 'year']], on='raceId') \\\n                      .merge(drivers_df[['driverId', 'surname']], on='driverId')\n\ndf_2024 = df_merged[df_merged['year'] == 2024].dropna(subset=['grid', 'positionOrder'])\ndf_2024 = df_2024[(df_2024['grid'] &gt; 0) & (df_2024['positionOrder'] &lt;= 20)]\n\n# Calculate positions gained/lost (Grid minus Finish: positive means gained positions)\ndf_2024['gained'] = df_2024['grid'] - df_2024['positionOrder']\n\nplt.figure(figsize=(10, 6))\n\n# Plot lines colored by performance change (gained/lost)\nfor _, row in df_2024.iterrows():\n    # Highlight major movers (gained 3+ positions in green, lost 3+ in orange, rest neutral gray)\n    if row['gained'] &gt;= 3:\n        color, alpha, zorder = '#2ecc71', 0.6, 3 # Green for strong climbers\n    elif row['gained'] &lt;= -3:\n        color, alpha, zorder = '#e74c3c', 0.4, 2 # Red/Orange for droppers\n    else:\n        color, alpha, zorder = '#bdc3c7', 0.15, 1 # Neutral gray for steady results\n        \n    plt.plot([1, 2], [row['grid'], row['positionOrder']], color=color, alpha=alpha, zorder=zorder, linewidth=1.5)\n\nplt.title(\"2024 F1 Race Day Shifts: Who Climbed the Grid?\", fontsize=14, fontweight='bold')\nplt.xticks([1, 2], ['Qualifying Grid', 'Race Finish'], fontsize=12)\nplt.ylabel(\"Position\", fontsize=12)\nplt.yticks(range(1, 21))\nplt.gca().invert_yaxis() # 1st place at the top\nplt.grid(True, axis='y', linestyle='--', alpha=0.3)\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\nBy examining the 2024 season scatter plot, you will notice a dense clustering along the diagonal line, indicating that qualifying position is indeed a strong predictor. However, you will also spot significant spread where drivers drop back due to mechanical failures or surge forward through stellar overtaking performances."
+    "text": "Visualizing the Relationship\nTo truly understand how predictive qualifying is across hundreds of historical races, visualization is essential. Let’s write a snippet using matplotlib and seaborn to plot grid positions against final race finishes.\n\nimport matplotlib.pyplot as plt\nimport seaborn as sns\nimport pandas as pd\n\n# Load data and filter for 2024\nraces_df = pd.read_csv(\"data/races.csv\")\ndrivers_df = pd.read_csv(\"data/drivers.csv\")\n\ndf_merged = results_df.merge(races_df[['raceId', 'year']], on='raceId') \\\n                      .merge(drivers_df[['driverId', 'surname']], on='driverId')\n\ndf_2024 = df_merged[df_merged['year'] == 2024].dropna(subset=['grid', 'positionOrder'])\ndf_2024 = df_2024[(df_2024['grid'] &gt; 0) & (df_2024['positionOrder'] &lt;= 20)]\n\n# Calculate positions gained/lost (Grid minus Finish: positive means gained positions)\ndf_2024['gained'] = df_2024['grid'] - df_2024['positionOrder']\n\nplt.figure(figsize=(10, 6))\n\n# Plot lines colored by performance change (gained/lost)\nfor _, row in df_2024.iterrows():\n    # Highlight major movers (gained 3+ positions in green, lost 3+ in orange, rest neutral gray)\n    if row['gained'] &gt;= 3:\n        color, alpha, zorder = '#2ecc71', 0.6, 3 # Green for strong climbers\n    elif row['gained'] &lt;= -3:\n        color, alpha, zorder = '#e74c3c', 0.4, 2 # Red/Orange for droppers\n    else:\n        color, alpha, zorder = '#bdc3c7', 0.15, 1 # Neutral gray for steady results\n        \n    plt.plot([1, 2], [row['grid'], row['positionOrder']], color=color, alpha=alpha, zorder=zorder, linewidth=1.5)\n\nplt.title(\"2024 F1 Race Day Shifts: Who Climbed the Grid?\", fontsize=14, fontweight='bold')\nplt.xticks([1, 2], ['Qualifying Grid', 'Race Finish'], fontsize=12)\nplt.ylabel(\"Position\", fontsize=12)\nplt.yticks(range(1, 21))\nplt.gca().invert_yaxis() # 1st place at the top\nplt.grid(True, axis='y', linestyle='--', alpha=0.3)\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\nBy examining the 2024 season slope graph above, you can instantly trace how race day disrupts Saturday’s qualifying order. Each line represents a driver’s journey from their starting grid position on the left axis to their final race finish on the right axis. The bright green lines highlight major climbers who carved their way forward through the field, the red lines show drivers who lost positions due to incidents or race-day struggles, and the faint gray paths represent stable finishes where the grid order held steady. While pole sitters still enjoy a strong statistical advantage at the front, the web of intersecting lines vividly captures the unpredictable chaos that unfolds every Sunday."
   },
   {
     "objectID": "f1-qualifying-tutorial.html#conclusion-and-next-steps",
@@ -54,5 +40,68 @@
     "title": "Does Qualifying Position Predict F1 Race Results? 🏎️",
     "section": "Conclusion and Next Steps",
     "text": "Conclusion and Next Steps\nOur exploratory analysis confirms that while qualifying is a vital indicator of race success, Formula 1 remains wonderfully unpredictable on Sundays. Fast qualifiers have a massive statistical advantage, but strategy, tire management, and weather always play a deciding role.\nCall to Action: Try tweaking the script to filter for a different season (like 2023 or 2022) to see how the grid-to-finish relationship changes across different regulatory eras!"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "triestecerny.github.io",
+    "section": "",
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+  },
+  {
+    "objectID": "dataacquisition.html",
+    "href": "dataacquisition.html",
+    "title": "Etsy Wall Art Data Acquisition & Market Analysis",
+    "section": "",
+    "text": "As an aspiring independent digital creator who ran an Etsy shop over the summer (to try to make some passive income) selling digital prints, understanding what drives perceived value and popularity on the marketplace is immensely useful. Marketplace optimization relies heavily on knowing which descriptive tags, aesthetic keywords, and listing types capture buyer attention. This project investigates public search results for minimalist wall art on Etsy to uncover key trends in pricing dynamics and review volume."
+  },
+  {
+    "objectID": "dataacquisition.html#introduction-and-motivation",
+    "href": "dataacquisition.html#introduction-and-motivation",
+    "title": "Etsy Wall Art Data Acquisition & Market Analysis",
+    "section": "",
+    "text": "As an aspiring independent digital creator who ran an Etsy shop over the summer (to try to make some passive income) selling digital prints, understanding what drives perceived value and popularity on the marketplace is immensely useful. Marketplace optimization relies heavily on knowing which descriptive tags, aesthetic keywords, and listing types capture buyer attention. This project investigates public search results for minimalist wall art on Etsy to uncover key trends in pricing dynamics and review volume."
+  },
+  {
+    "objectID": "dataacquisition.html#motivating-question",
+    "href": "dataacquisition.html#motivating-question",
+    "title": "Etsy Wall Art Data Acquisition & Market Analysis",
+    "section": "2. Motivating Question",
+    "text": "2. Motivating Question\nThe core question guiding my analysis is: How do specific aesthetic and descriptive tags (such as “minimalist,” “retro,” “boho”) and item formats (digital downloads vs. physical prints) correlate with item popularity and review counts?\nBy exploring these patterns, independent creators can better understand what features align with higher consumer engagement and competitive pricing strategies."
+  },
+  {
+    "objectID": "dataacquisition.html#ethics-and-scraping-practices",
+    "href": "dataacquisition.html#ethics-and-scraping-practices",
+    "title": "Etsy Wall Art Data Acquisition & Market Analysis",
+    "section": "3. Ethics and Scraping Practices",
+    "text": "3. Ethics and Scraping Practices\nWhen gathering data from e-commerce platforms, respecting site terms and server performance is paramount. To ensure responsible data collection and ethical scraping practices: * Rate Limiting: Added deliberate pauses (time.sleep(3)) between requests to avoid overwhelming Etsy’s servers or triggering denial-of-service concerns. * Headers: Utilized transparent browser User-Agent headers to properly identify our script sessions. * Privacy Compliance: Only public-facing marketplace metadata (titles, prices, estimated review volumes, and digital flags) was collected; no personally identifiable information (PII) or user data was scraped."
+  },
+  {
+    "objectID": "dataacquisition.html#data-collection-walkthrough",
+    "href": "dataacquisition.html#data-collection-walkthrough",
+    "title": "Etsy Wall Art Data Acquisition & Market Analysis",
+    "section": "4. Data Collection Walkthrough",
+    "text": "4. Data Collection Walkthrough\nTo assemble this original dataset of 250 observations across 5 key features, we used Python with pandas and structured parsing. Below is a summary of how a developer or classmate can get started with a similar web scraping project:\n\n\nCode\nimport time\nimport requests\nfrom bs4 import BeautifulSoup\nimport pandas as pd\n\nlistings_data = []\nquery = \"minimalist+wall+art\"\nnum_pages = 5\n\nheaders = {\n    \"User-Agent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36\"\n}\n\nfor page in range(1, num_pages + 1):\n    url = f\"https://www.etsy.com/search?q={query}&ref=pagination&page={page}\"\n    response = requests.get(url, headers=headers, timeout=30)\n    \n    if response.status_code == 200:\n        # Parse container cards or JSON-LD schema blocks here\n        pass\n    \n    # Always implement polite delays between requests\n    time.sleep(3)"
+  },
+  {
+    "objectID": "dataacquisition.html#exploratory-data-analysis-eda-highlights",
+    "href": "dataacquisition.html#exploratory-data-analysis-eda-highlights",
+    "title": "Etsy Wall Art Data Acquisition & Market Analysis",
+    "section": "5. Exploratory Data Analysis (EDA) Highlights",
+    "text": "5. Exploratory Data Analysis (EDA) Highlights\nOur final dataset contains 250 unique listings tracking title, price, review_count, is_bestseller, and is_digital.\n\nSummary Statistics\n\nPrice: Ranges from a minimum of $3.12 up to $68.38, with a median price of $8.28 and a mean of $11.19.\nReview Counts: Average review volume sits around 334 reviews per listing, showing strong consumer feedback across search results.\nDigital vs. Physical Split: Out of 250 items, 148 are digital downloads and 102 are physical prints, confirming that instant digital deliverables occupy a dominant share of search visibility.\n\n\n\nVisualizing Findings\n\nPrice vs. Review Volume by Format\n\n\n\nPrice vs Reviews Scatter Plot\n\n\n\n\nPrice Distribution Comparison\n\n\n\nPrice Distribution Boxplot\n\n\n\n\n\nMost Interesting Findings\n\nLow-Price Volume Concentration: Listings priced under $15 accumulate significantly higher review frequencies, demonstrating that lower barriers to entry drive transaction velocity.\nFormat Cost Disparity: Physical prints exhibit a much wider interquartile range with high outlier prices (reaching up to $68), whereas digital downloads tightly cluster at lower price points due to zero marginal fulfillment costs."
+  },
+  {
+    "objectID": "dataacquisition.html#resources-and-code-repository",
+    "href": "dataacquisition.html#resources-and-code-repository",
+    "title": "Etsy Wall Art Data Acquisition & Market Analysis",
+    "section": "6. Resources and Code Repository",
+    "text": "6. Resources and Code Repository\n\nAccess the complete code implementation and dataset instructions in the etsy-wall-art-scraping GitHub Repository.\nReview scraping tutorials and documentation via BeautifulSoup Documentation."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "Hi I am Trieste"
   }
 ]

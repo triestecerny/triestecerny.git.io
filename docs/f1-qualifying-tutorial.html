@@ -173,6 +173,10 @@ window.Quarto = {
     <a class="nav-link active" href="./f1-qualifying-tutorial.html" aria-current="page"> 
 <span class="menu-text">F1 Tutorial</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./dataacquisition.html"> 
+<span class="menu-text">Data Acquisiton</span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -285,7 +289,7 @@ window.Quarto = {
 <section id="loading-and-cleaning-data-with-pandas" class="level2">
 <h2 class="anchored" data-anchor-id="loading-and-cleaning-data-with-pandas">Loading and Cleaning Data with Pandas</h2>
 <p>First, let’s load our data using <code>pandas</code> and inspect the core structure of our dataframes.</p>
-<div id="cd5632ce" class="cell" data-execution_count="1">
+<div id="a8df9912" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the qualifying and race results datasets</span></span>
@@ -303,7 +307,7 @@ window.Quarto = {
 <section id="visualizing-the-relationship" class="level2">
 <h2 class="anchored" data-anchor-id="visualizing-the-relationship">Visualizing the Relationship</h2>
 <p>To truly understand how predictive qualifying is across hundreds of historical races, visualization is essential. Let’s write a snippet using <code>matplotlib</code> and <code>seaborn</code> to plot grid positions against final race finishes.</p>
-<div id="c80296c9" class="cell" data-execution_count="2">
+<div id="a61cc22c" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -351,7 +355,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>By examining the 2024 season scatter plot, you will notice a dense clustering along the diagonal line, indicating that qualifying position is indeed a strong predictor. However, you will also spot significant spread where drivers drop back due to mechanical failures or surge forward through stellar overtaking performances.</p>
+<p>By examining the 2024 season slope graph above, you can instantly trace how race day disrupts Saturday’s qualifying order. Each line represents a driver’s journey from their starting grid position on the left axis to their final race finish on the right axis. The bright green lines highlight major climbers who carved their way forward through the field, the red lines show drivers who lost positions due to incidents or race-day struggles, and the faint gray paths represent stable finishes where the grid order held steady. While pole sitters still enjoy a strong statistical advantage at the front, the web of intersecting lines vividly captures the unpredictable chaos that unfolds every Sunday.</p>
 </section>
 <section id="conclusion-and-next-steps" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion-and-next-steps">Conclusion and Next Steps</h2>
