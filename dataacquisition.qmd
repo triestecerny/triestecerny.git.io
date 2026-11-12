@@ -20,7 +20,7 @@ By exploring these patterns, independent creators can better understand what fea
 
 ## 3. Ethics and Scraping Practices
 
-When gathering data from e-commerce platforms, respecting site terms and server performance is paramount. To ensure responsible data collection and ethical scraping practices:
+When gathering data from e-commerce platforms, respecting site terms and server performance is paramount. To ensure responsible data collection and ethical scraping practices: I did the following:"
 * **Rate Limiting:** Added deliberate pauses (`time.sleep(3)`) between requests to avoid overwhelming Etsy’s servers or triggering denial-of-service concerns.
 * **Headers:** Utilized transparent browser User-Agent headers to properly identify our script sessions.
 * **Privacy Compliance:** Only public-facing marketplace metadata (titles, prices, estimated review volumes, and digital flags) was collected; no personally identifiable information (PII) or user data was scraped.
